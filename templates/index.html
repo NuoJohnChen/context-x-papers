@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☝Community-Federated Conference Curation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Community-Federated Conference Curation</h1>
+            <p>As a key function within the Community-Federated Conference (CFC) model (<a href="https://arxiv.org/abs/2508.04586" target="_blank" rel="noopener noreferrer">arxiv:2508.04586</a>),<br>
+            this demo enables confrence/workshop organizers to identify the most relevant papers within the community<br>
+            by specifying their target <b>topic(s)</b>, region, and time period to fit their Call for Papers.</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="workshop-description">📝 Topics or Workshop Call-for-papers</label>
+                    <textarea 
+                        id="workshop-description"
+                        rows="10"
+                        class="placeholder-text">Enter your workshop CFP; the system will recommend relevant papers...
+
+💡 Example
+"Call for Papers: We welcome both original research papers and submissions based on arXiv pre-prints.
+Topics of interest include, but are not limited to:
+●   Data management systems for generative AI
+●   Agentic AI systems and algorithms"</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="top-k">📊 Number of recommendations (positive integer ≤ 200)</label>
+                    <input type="number" id="top-k" value="20" min="1" max="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>📅 Date Range (optional)</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="date" id="date-min" placeholder="Start date e.g., 2018-01-01" style="flex:1;">
+                        <span style="color:#666;">—</span>
+                        <input type="date" id="date-max" placeholder="End date e.g., 2025-12-31" style="flex:1;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🌍 Countries/Regions (multi-select)</label>
+                    <div id="country-list" style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px;">
+                        <label><input type="checkbox" value="USA"> USA</label>
+                        <label><input type="checkbox" value="CHN"> CHN</label>
+                        <label><input type="checkbox" value="SGP"> SGP</label>
+                        <label><input type="checkbox" value="GBR"> GBR</label>
+                        <label><input type="checkbox" value="CAN"> CAN</label>
+                        <label><input type="checkbox" value="KOR"> KOR</label>
+                        <label><input type="checkbox" value="CHE"> CHE</label>
+                        <label><input type="checkbox" value="AUT"> AUT</label>
+                        <label><input type="checkbox" value="DEU"> DEU</label>
+                        <label><input type="checkbox" value="JPN"> JPN</label>
+                        <label><input type="checkbox" value="NLD"> NLD</label>
+                        <div>
+                            <input id="country-custom" type="text" placeholder="Custom ISO Alpha-3 (e.g., FRA)" maxlength="3" style="width:100%; padding:6px; text-transform:uppercase;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🧠 CS Categories (multi-select)</label>
+                    <div id="cs-category-list" style="display:grid;grid-template-columns:repeat(14, minmax(0,1fr));gap:8px;">
+                        <label><input type="checkbox" value="AI"> AI</label>
+                        <label><input type="checkbox" value="AR"> AR</label>
+                        <label><input type="checkbox" value="CC"> CC</label>
+                        <label><input type="checkbox" value="CE"> CE</label>
+                        <label><input type="checkbox" value="CG"> CG</label>
+                        <label><input type="checkbox" value="CL"> CL</label>
+                        <label><input type="checkbox" value="CR"> CR</label>
+                        <label><input type="checkbox" value="CV"> CV</label>
+                        <label><input type="checkbox" value="CY"> CY</label>
+                        <label><input type="checkbox" value="DB"> DB</label>
+                        <label><input type="checkbox" value="DC"> DC</label>
+                        <label><input type="checkbox" value="DL"> DL</label>
+                        <label><input type="checkbox" value="DM"> DM</label>
+                        <label><input type="checkbox" value="DS"> DS</label>
+                        <label><input type="checkbox" value="ET"> ET</label>
+                        <label><input type="checkbox" value="FL"> FL</label>
+                        <label><input type="checkbox" value="GL"> GL</label>
+                        <label><input type="checkbox" value="GR"> GR</label>
+                        <label><input type="checkbox" value="GT"> GT</label>
+                        <label><input type="checkbox" value="HC"> HC</label>
+                        <label><input type="checkbox" value="IR"> IR</label>
+                        <label><input type="checkbox" value="IT"> IT</label>
+                        <label><input type="checkbox" value="LG"> LG</label>
+                        <label><input type="checkbox" value="LO"> LO</label>
+                        <label><input type="checkbox" value="MA"> MA</label>
+                        <label><input type="checkbox" value="MM"> MM</label>
+                        <label><input type="checkbox" value="MS"> MS</label>
+                        <label><input type="checkbox" value="NA"> NA</label>
+                        <label><input type="checkbox" value="NE"> NE</label>
+                        <label><input type="checkbox" value="NI"> NI</label>
+                        <label><input type="checkbox" value="OH"> OH</label>
+                        <label><input type="checkbox" value="OS"> OS</label>
+                        <label><input type="checkbox" value="PF"> PF</label>
+                        <label><input type="checkbox" value="PL"> PL</label>
+                        <label><input type="checkbox" value="RO"> RO</label>
+                        <label><input type="checkbox" value="SC"> SC</label>
+                        <label><input type="checkbox" value="SD"> SD</label>
+                        <label><input type="checkbox" value="SE"> SE</label>
+                        <label><input type="checkbox" value="SI"> SI</label>
+                        <label><input type="checkbox" value="SY"> SY</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="min-similarity">🔧 Minimum similarity threshold (0–1, optional)</label>
+                    <input type="number" id="min-similarity" placeholder="e.g., 0.5" min="0" max="1" step="0.01">
+                </div>
+
+                <div class="form-group" id="topic-discovery-section" style="display:none;">
+                    <label for="n-topics">🎯 Number of topics to discover (2-50)</label>
+                    <input type="number" id="n-topics" value="10" min="2" max="50">
+                    <p style="color:#666; font-size:0.9em; margin-top:5px;">
+                        💡 Topic Discovery will cluster filtered papers to discover research themes
+                    </p>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="recommendPapers()">
+                        🔍 Topic → Papers
+                    </button>
+                    <button class="btn btn-primary" onclick="discoverTopics()" style="background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);">
+                        🎯 Papers → Topics
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResults()">
+                        🗑️ Clear
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportToExcel()" id="exportBtn" style="display:none;">
+                        📊 Export Excel
+                    </button>
+                    <div class="export-pdf-container" id="exportPdfContainer" style="display:none;">
+                        <button class="btn btn-secondary" onclick="exportToPDF()" id="exportPdfBtn">
+                            📄 Export PDFs
+                        </button>
+                        <div class="export-dropdown">
+                            <button class="dropdown-arrow" onclick="togglePdfOptions()">▼</button>
+                            <div class="dropdown-content" id="pdfOptions" style="display:none;">
+                                <label><input type="radio" name="pdfFilter" value="all" checked> All papers</label>
+                                <label><input type="radio" name="pdfFilter" value="liked"> Only liked papers</label>
+                                <label><input type="radio" name="pdfFilter" value="except_disliked"> Except disliked papers</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing the description and searching for relevant papers...</p>
+            </div>
+            
+            <div id="results" class="results"></div>
+            
+            <div id="progressBox" class="progress-wrapper" style="display:none;">
+                <div class="progress-bar" onclick="toggleProgressDetails()" style="cursor: pointer;">
+                    <div id="progressInner" class="progress-bar-inner"></div>
+                </div>
+                <div id="progressStatus" class="progress-status">Preparing...</div>
+                <div id="progressDetails" class="progress-details" style="display:none;">
+                    <div id="progressDetailsContent"></div>
+                </div>
+            </div>
+            
+            <!-- Data Policy Disclaimer -->
+            <div class="disclaimer">
+                <h3> Data Policy & Disclaimer</h3>
+                <div class="disclaimer-content">
+                    <p> The data source is from arXiv.org under their open access policies. Feedback data (likes/dislikes) may be collected anonymously for system improvement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

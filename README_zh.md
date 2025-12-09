@@ -1,0 +1,202 @@
+# 社区联邦会议 (CFC) 策展引擎 & XtraMCP Researcher 节点
+
+> 点击切换语言 · Click to switch language：
+> **[English](./README.md)** | **[中文](./README_zh.md)**
+
+---
+
+### 1. 概览
+
+本仓库承载了用于 **语义文献检索** 与 **主题发现** 的核心智能模块。
+它作为 **XtraMCP 框架** [1] 中 Researcher 模块的后端引擎，为写作助手 **PaperDebugger** [3] 提供能力支持。
+同时，本仓库也是实现 **社区联邦会议（Community-Federated Conference, CFC）** 模型的技术底座，用于应对当前集中式 AI 顶会体系的可持续性危机 [2]。
+
+---
+
+### 2. 数据摄取：`paperdb` 流水线
+
+系统的基础由 `paperdb/` 目录构成，用于构建语义分析所需的综合知识库。
+
+#### 2.1 功能
+
+该模块抓取并聚合 arXiv 元数据，并使用 **Specter2** 生成文档级别的向量嵌入。
+
+#### 2.2 输出
+
+生成两个关键产物：
+
+- `arxiv_merged.parquet`约 70 万篇论文的结构化元数据集，包含标题、摘要、作者、类别等信息。
+- `embeddings.npy`
+  与上述论文一一对应的预计算稠密向量文件。
+
+#### 2.3 集成方式
+
+`app.py` 会直接加载这两个文件，用于初始化 `WorkshopRecommender` 类，从而实现**低延迟检索**，无需对全量语料进行实时向量化推理。
+
+---
+
+### 3. 核心功能：Context2Papers 与 Papers2Context
+
+`app.py` 基于 `paperdb` 数据，实现了两个方向的信息流：
+
+- **Context2Papers**：语义检索与文献推荐
+- **Papers2Context**：主题发现与趋势分析
+
+---
+
+#### 3.1 Context2Papers：语义检索与文献推荐
+
+**目标：**
+在给定具体研究语境（如 workshop 描述、论文摘要、研究问题）的前提下，检索出高精度且高度相关的学术论文。
+
+##### 实现流程
+
+1. **向量化（召回层）**
+
+   - 使用 **Specter2**（`allenai/specter2_base`）将用户查询转换为向量，并与预计算的 `embeddings.npy` 处于同一语义空间。
+   - 通过 **余弦相似度** 进行稠密向量检索，召回 top‑k 候选论文。
+2. **重排序（精排层）**
+
+   - 针对向量压缩带来的信息损失，引入 **大模型重排序器**（`Qwen/Qwen3-Reranker-8B`）。
+   - 对召回候选进行再次打分，综合分析查询与论文在语义和上下文层面的匹配程度，从而显著提升结果相关性。
+
+---
+
+#### 3.2 Papers2Context：主题发现与趋势分析
+
+**目标：**
+在 `arxiv_merged.parquet` 大规模论文集合上（可按地区、时间等过滤），自动发现潜在主题、研究趋势与“语境”。
+
+##### 实现流程
+
+1. **聚类管线**
+
+   - 使用 **BERTopic** 完成动态主题建模。
+2. **降维**
+
+   - 采用 **UMAP** 将高维 Specter2 嵌入降至适合聚类的低维空间。
+3. **密度聚类**
+
+   - 使用 **HDBSCAN** 识别嵌入空间中的高密度簇，这些簇往往对应新兴研究前沿或局部热点。
+4. **主题表示**
+
+   - 通过 `CountVectorizer` 提取基于类别的 TF-IDF 关键词，为每个识别出来的“语境 / 主题”生成可读化标签与描述。
+
+---
+
+### 4. 在 XtraMCP 与 PaperDebugger 中的角色
+
+本仓库是 XtraMCP 架构中的 **Researcher 节点**，实现了**编排层与推理层的解耦** [1]。
+
+#### 4.1 作为 XtraMCP 的 Researcher
+
+- 承担 Researcher 模块的**执行层**职责：
+  - 当 XtraMCP 控制层接收到用户意图（如“帮我找相关工作”）后，会通过 **Model Context Protocol (MCP)** 将请求路由至本后端。
+- 提供 **“零幻觉”安全保障**：
+  - 与常规大模型可能“编造引用”不同，本模块基于 `paperdb` 构建的向量数据库进行**确定性检索**，保证每一条推荐都可在真实文献中被验证和追溯。
+
+#### 4.2 对 PaperDebugger 的支撑
+
+面向用户的 Overleaf 扩展 **PaperDebugger** [3] 使用本后端提供的实时 **“深度检索（Deep Research）”** 能力：
+
+- 基于用户当前稿件内容进行语义分析：
+  - 检索与稿件高度相关的文献；
+  - 生成**相关性洞察（Relevance Insights）**，帮助作者理解自身工作的创新点和其在现有研究版图中的位置。
+
+---
+
+### 5. 应对 AI 会议危机：CFC 模型
+
+集中式 AI 顶会模式正因**投稿量指数级膨胀**与**知识传播低效**而变得难以为继 [2]。
+本代码库是解决这一问题的 **社区联邦会议（CFC）模型** 的技术基础。
+
+#### 5.1 缓解信息过载
+
+通过 **Context2Papers**，系统支撑了学术会议的“**科学使命（Scientific Mission）**”——高效的知识交换：
+
+- 研究者可以从海量投稿与预印本中，快速筛选出与自己**具体研究语境**高度相关的工作，降低信息噪声。
+
+#### 5.2 支撑联邦式区域 Hub
+
+CFC 模型将“评审”与“展示”解耦，通过规模约为 500–1500 人的 **区域 Hub（Federated Regional Hubs）** 来组织线下交流。
+
+- **Papers2Context** 对这些 Hub 的组织者尤为关键：
+  - 可按地区（如 “Singapore”）过滤 `arxiv_merged.parquet`；
+  - 运行主题发现，识别该地区的主导研究方向与新兴趋势；
+  - 进而策划高度聚焦、价值密度高的 workshop 与专题讨论。
+
+这有助于重建会议的“**社区建设（Community Building）**”功能，让学术交流回到基于真实社群和地缘关系的深度互动，而非匿名、超大规模的聚合式会议。
+
+## 6 参考文献
+
+`<span id="cite-paperdebugger">`
+
+```bibtex
+
+@misc{hou2025paperdebugger,
+
+      title={PaperDebugger: A Plugin-Based Multi-Agent System for In-Editor Academic Writing, Review, and Editing}, 
+
+      author={Junyi Hou and Andre Lin Huikai and Nuo Chen and Yiwei Gong and Bingsheng He},
+
+      year={2025},
+
+      eprint={2512.02589},
+
+      archivePrefix={arXiv},
+
+      primaryClass={cs.AI},
+
+      url={[https://arxiv.org/abs/2512.02589](https://arxiv.org/abs/2512.02589)}, 
+
+}
+
+```
+
+`<span id="cite-xtragpt">`
+
+```bibtex
+
+@misc{chen2025xtragpt,
+
+      title={XtraGPT: Context-Aware and Controllable Academic Paper Revision for Human-AI Collaboration}, 
+
+      author={Nuo Chen, Andre Lin HuiKai, Jiaying Wu, Junyi Hou, Zining Zhang, Qian Wang, Xidong Wang, Bingsheng He},
+
+      year={2025},
+
+      eprint={2505.11336},
+
+      archivePrefix={arXiv},
+
+      primaryClass={cs.CL},
+
+      url={[https://arxiv.org/abs/2505.11336](https://arxiv.org/abs/2505.11336)}, 
+
+}
+
+```
+
+`<span id="cite-position">`
+
+```bibtex
+
+@misc{chen2025position,
+
+      title={Position: The Current AI Conference Model is Unsustainable! Diagnosing the Crisis of Centralized AI Conference}, 
+
+      author={Nuo Chen and Moming Duan and Andre Huikai Lin and Qian Wang and Jiaying Wu and Bingsheng He},
+
+      year={2025},
+
+      eprint={2508.04586},
+
+      archivePrefix={arXiv},
+
+      primaryClass={cs.CY},
+
+      url={[https://arxiv.org/abs/2508.04586](https://arxiv.org/abs/2508.04586)}, 
+
+}
+
+```

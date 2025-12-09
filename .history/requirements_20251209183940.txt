@@ -1,0 +1,12 @@
+flask==3.0.3
+python-dotenv==1.0.1
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+sentence-transformers==3.0.1
+umap-learn==0.5.6
+hdbscan==0.8.37
+bertopic==0.16.0
+requests==2.32.3
+openpyxl==3.1.5
+lancedb==0.9.0
