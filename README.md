@@ -122,74 +122,42 @@ This helps restore the **Community Building** function of conferences, enabling 
 
 ## 6 Reference
 
-`<span id="cite-paperdebugger">`
-
+<div id="cite-paperdebugger"></div>
 ```bibtex
-
 @misc{hou2025paperdebugger,
-
       title={PaperDebugger: A Plugin-Based Multi-Agent System for In-Editor Academic Writing, Review, and Editing}, 
-
       author={Junyi Hou and Andre Lin Huikai and Nuo Chen and Yiwei Gong and Bingsheng He},
-
       year={2025},
-
       eprint={2512.02589},
-
       archivePrefix={arXiv},
-
       primaryClass={cs.AI},
-
       url={[https://arxiv.org/abs/2512.02589](https://arxiv.org/abs/2512.02589)}, 
-
 }
-
 ```
 
-`<span id="cite-xtragpt">`
-
+<div id="cite-xtragpt"></div>
 ```bibtex
-
 @misc{chen2025xtragpt,
-
       title={XtraGPT: Context-Aware and Controllable Academic Paper Revision for Human-AI Collaboration}, 
-
       author={Nuo Chen, Andre Lin HuiKai, Jiaying Wu, Junyi Hou, Zining Zhang, Qian Wang, Xidong Wang, Bingsheng He},
-
       year={2025},
-
       eprint={2505.11336},
-
       archivePrefix={arXiv},
-
       primaryClass={cs.CL},
-
       url={[https://arxiv.org/abs/2505.11336](https://arxiv.org/abs/2505.11336)}, 
-
 }
-
 ```
 
-`<span id="cite-position">`
-
+<div id="cite-position"></div>
 ```bibtex
-
 @misc{chen2025position,
-
       title={Position: The Current AI Conference Model is Unsustainable! Diagnosing the Crisis of Centralized AI Conference}, 
-
       author={Nuo Chen and Moming Duan and Andre Huikai Lin and Qian Wang and Jiaying Wu and Bingsheng He},
-
       year={2025},
-
       eprint={2508.04586},
-
       archivePrefix={arXiv},
-
       primaryClass={cs.CY},
-
       url={[https://arxiv.org/abs/2508.04586](https://arxiv.org/abs/2508.04586)}, 
-
 }
 
 ```
